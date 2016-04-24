@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{151D2E53-A2C4-4D7D-83FE-D05416EBD58E}") = "Demo1", "Demo1\Demo1.deployproj", "{0D1E0EE9-443C-4C32-9785-D0BD466D609C}"
+Project("{151D2E53-A2C4-4D7D-83FE-D05416EBD58E}") = "Demo1-Finished", "Demo1\Demo1-Finished.deployproj", "{0D1E0EE9-443C-4C32-9785-D0BD466D609C}"
 EndProject
 Project("{151D2E53-A2C4-4D7D-83FE-D05416EBD58E}") = "BuildingBlocks", "BuildingBlocks\BuildingBlocks.deployproj", "{AD0DCDAA-E2DB-4E06-A743-F783B6DECDA3}"
 EndProject
