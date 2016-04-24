@@ -1,0 +1,256 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminUsername": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "Username for the Virtual Machine."
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Password for the Virtual Machine."
+      }
+    },
+    "dnsNameForPublicIP": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "Globally unique DNS Name for the Public IP used to access the Virtual Machine."
+      }
+    },
+    "windowsOSVersion": {
+      "type": "string",
+      "defaultValue": "2012-R2-Datacenter",
+      "allowedValues": [
+        "2008-R2-SP1",
+        "2012-Datacenter",
+        "2012-R2-Datacenter"
+      ],
+      "metadata": {
+        "description": "The Windows version for the VM. This will pick a fully patched image of this given Windows version. Allowed values: 2008-R2-SP1, 2012-Datacenter, 2012-R2-Datacenter."
+      }
+    },
+      "_artifactsLocation": {
+          "type": "string"
+      },
+      "_artifactsLocationSasToken": {
+          "type": "securestring"
+      },
+      "PublicIPTemplateTemplateFolder": {
+          "type": "string",
+          "minLength": 1,
+          "metadata": {
+              "description": "template location. This path is relative to the _artifactsLocation parameter"
+          }
+      },
+      "PublicIPTemplateTemplateFileName": {
+          "type": "string",
+          "minLength": 1,
+          "metadata": {
+              "description": "Name of the nested template file"
+          }
+      },
+      "NetworkInterfaceTemplateTemplateFolder": {
+          "type": "string",
+          "minLength": 1,
+          "metadata": {
+              "description": "template location. This path is relative to the _artifactsLocation parameter"
+          }
+      },
+      "NetworkInterfaceTemplateTemplateFileName": {
+          "type": "string",
+          "minLength": 1,
+          "metadata": {
+              "description": "Name of the nested template file"
+          }
+      },
+      "StorageAccountTemplateTemplateFolder": {
+          "type": "string",
+          "minLength": 1,
+          "metadata": {
+              "description": "template location. This path is relative to the _artifactsLocation parameter"
+          }
+      },
+      "StorageAccountTemplateTemplateFileName": {
+          "type": "string",
+          "minLength": 1,
+          "metadata": {
+              "description": "Name of the nested template file"
+          }
+      },
+      "VirtualNetworkTemplateTemplateFolder": {
+          "type": "string",
+          "minLength": 1,
+          "metadata": {
+              "description": "template location. This path is relative to the _artifactsLocation parameter"
+          }
+      },
+      "VirtualNetworkTemplateTemplateFileName": {
+          "type": "string",
+          "minLength": 1,
+          "metadata": {
+              "description": "Name of the nested template file"
+          }
+      },
+      "WindowsVMTemplateTemplateFolder": {
+          "type": "string",
+          "minLength": 1,
+          "metadata": {
+              "description": "template location. This path is relative to the _artifactsLocation parameter"
+          }
+      },
+      "WindowsVMTemplateTemplateFileName": {
+          "type": "string",
+          "minLength": 1,
+          "metadata": {
+              "description": "Name of the nested template file"
+          }
+      }
+  },
+  "variables": {
+    "imagePublisher": "MicrosoftWindowsServer",
+    "imageOffer": "WindowsServer",
+    "OSDiskName": "osdiskforwindowssimple",
+    "nicName": "myVMNic",
+    "addressPrefix": "10.0.0.0/16",
+    "subnetName": "Subnet",
+    "subnetPrefix": "10.0.0.0/24",
+    "vhdStorageType": "Standard_LRS",
+    "publicIPAddressName": "myPublicIP",
+    "publicIPAddressType": "Dynamic",
+    "vhdStorageContainerName": "vhds",
+    "vmName": "MyWindowsVM",
+    "vmSize": "Standard_A2",
+    "virtualNetworkName": "MyVNET",
+    "vnetId": "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
+    "subnetRef": "[concat(variables('vnetId'), '/subnets/', variables('subnetName'))]",
+    "vhdStorageName": "[concat('vhdstorage', uniqueString(resourceGroup().id))]",
+    "diagnosticsStorageAccountName": "[variables('vhdStorageName')]",
+    "diagnosticsStorageAccountResourceGroup": "[resourcegroup().name]",
+    "accountid": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', variables('diagnosticsStorageAccountResourceGroup'), '/providers/', 'Microsoft.Storage/storageAccounts/', variables('diagnosticsStorageAccountName'))]",
+    "wadlogs": "<WadCfg> <DiagnosticMonitorConfiguration overallQuotaInMB=\"4096\" xmlns=\"http://schemas.microsoft.com/ServiceHosting/2010/10/DiagnosticsConfiguration\"> <DiagnosticInfrastructureLogs scheduledTransferLogLevelFilter=\"Error\"/> <WindowsEventLog scheduledTransferPeriod=\"PT1M\" > <DataSource name=\"Application!*[System[(Level = 1 or Level = 2)]]\" /> <DataSource name=\"Security!*[System[(Level = 1 or Level = 2)]]\" /> <DataSource name=\"System!*[System[(Level = 1 or Level = 2)]]\" /></WindowsEventLog>",
+    "wadperfcounters1": "<PerformanceCounters scheduledTransferPeriod=\"PT1M\"><PerformanceCounterConfiguration counterSpecifier=\"\\Processor(_Total)\\% Processor Time\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"CPU utilization\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Processor(_Total)\\% Privileged Time\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"CPU privileged time\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Processor(_Total)\\% User Time\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"CPU user time\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Processor Information(_Total)\\Processor Frequency\" sampleRate=\"PT15S\" unit=\"Count\"><annotation displayName=\"CPU frequency\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\System\\Processes\" sampleRate=\"PT15S\" unit=\"Count\"><annotation displayName=\"Processes\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Process(_Total)\\Thread Count\" sampleRate=\"PT15S\" unit=\"Count\"><annotation displayName=\"Threads\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Process(_Total)\\Handle Count\" sampleRate=\"PT15S\" unit=\"Count\"><annotation displayName=\"Handles\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Memory\\% Committed Bytes In Use\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"Memory usage\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Memory\\Available Bytes\" sampleRate=\"PT15S\" unit=\"Bytes\"><annotation displayName=\"Memory available\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Memory\\Committed Bytes\" sampleRate=\"PT15S\" unit=\"Bytes\"><annotation displayName=\"Memory committed\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Memory\\Commit Limit\" sampleRate=\"PT15S\" unit=\"Bytes\"><annotation displayName=\"Memory commit limit\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\% Disk Time\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"Disk active time\" locale=\"en-us\"/></PerformanceCounterConfiguration>",
+    "wadperfcounters2": "<PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\% Disk Read Time\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"Disk active read time\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\% Disk Write Time\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"Disk active write time\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\Disk Transfers/sec\" sampleRate=\"PT15S\" unit=\"CountPerSecond\"><annotation displayName=\"Disk operations\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\Disk Reads/sec\" sampleRate=\"PT15S\" unit=\"CountPerSecond\"><annotation displayName=\"Disk read operations\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\Disk Writes/sec\" sampleRate=\"PT15S\" unit=\"CountPerSecond\"><annotation displayName=\"Disk write operations\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\Disk Bytes/sec\" sampleRate=\"PT15S\" unit=\"BytesPerSecond\"><annotation displayName=\"Disk speed\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\Disk Read Bytes/sec\" sampleRate=\"PT15S\" unit=\"BytesPerSecond\"><annotation displayName=\"Disk read speed\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\Disk Write Bytes/sec\" sampleRate=\"PT15S\" unit=\"BytesPerSecond\"><annotation displayName=\"Disk write speed\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\LogicalDisk(_Total)\\% Free Space\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"Disk free space (percentage)\" locale=\"en-us\"/></PerformanceCounterConfiguration></PerformanceCounters>",
+    "wadcfgxstart": "[concat(variables('wadlogs'), variables('wadperfcounters1'), variables('wadperfcounters2'), '<Metrics resourceId=\"')]",
+    "wadmetricsresourceid": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', variables('diagnosticsStorageAccountResourceGroup'), '/providers/', 'Microsoft.Compute/virtualMachines/', variables('vmName'))]",
+    "wadcfgxend": "\"><MetricAggregation scheduledTransferPeriod=\"PT1H\"/><MetricAggregation scheduledTransferPeriod=\"PT1M\"/></Metrics></DiagnosticMonitorConfiguration></WadCfg>"
+  },
+  "resources": [
+    {
+          "name": "PublicIPTemplate",
+          "type": "Microsoft.Resources/deployments",
+          "apiVersion": "2015-01-01",
+          "dependsOn": [ ],
+          "properties": {
+              "mode": "Incremental",
+              "templateLink": {
+                  "uri": "[concat(parameters('_artifactsLocation'), '/', parameters('PublicIPTemplateTemplateFolder'), '/', parameters('PublicIPTemplateTemplateFileName'), parameters('_artifactsLocationSasToken'))]",
+                  "contentVersion": "1.0.0.0"
+              },
+            "parameters": {
+              "publicIPAddressName": { "value": "[variables('publicIPAddressName')]" },
+              "publicIPAddressType": { "value": "[variables('publicIPAddressType')]" },
+              "dnsNameForPublicIP": { "value": "[parameters('dnsNameForPublicIP')]" }
+            }
+          }
+      },
+    {
+      "name": "NetworkInterfaceTemplate",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "dependsOn": [
+        "Microsoft.Resources/deployments/PublicIPTemplate",
+        "Microsoft.Resources/deployments/VirtualNetworkTemplate"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('_artifactsLocation'), '/', parameters('NetworkInterfaceTemplateTemplateFolder'), '/', parameters('NetworkInterfaceTemplateTemplateFileName'), parameters('_artifactsLocationSasToken'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "nicName": { "value": "[variables('nicName')]" },
+          "publicIPAddressName": { "value": "[variables('publicIPAddressName')]" },
+          "virtualNetworkName": { "value": "[variables('virtualNetworkName')]" },
+          "subnetRef": { "value": "[variables('subnetRef')]" }
+        }
+      }
+    },
+    {
+          "name": "StorageAccountTemplate",
+          "type": "Microsoft.Resources/deployments",
+          "apiVersion": "2015-01-01",
+          "dependsOn": [ ],
+          "properties": {
+              "mode": "Incremental",
+              "templateLink": {
+                  "uri": "[concat(parameters('_artifactsLocation'), '/', parameters('StorageAccountTemplateTemplateFolder'), '/', parameters('StorageAccountTemplateTemplateFileName'), parameters('_artifactsLocationSasToken'))]",
+                  "contentVersion": "1.0.0.0"
+              },
+            "parameters": {
+              "vhdStorageName": { "value": "[variables('vhdStorageName')]" },
+              "vhdStorageType": { "value": "[variables('vhdStorageType')]" }
+            }
+          }
+      },
+    {
+          "name": "VirtualNetworkTemplate",
+          "type": "Microsoft.Resources/deployments",
+          "apiVersion": "2015-01-01",
+          "dependsOn": [ ],
+          "properties": {
+              "mode": "Incremental",
+              "templateLink": {
+                  "uri": "[concat(parameters('_artifactsLocation'), '/', parameters('VirtualNetworkTemplateTemplateFolder'), '/', parameters('VirtualNetworkTemplateTemplateFileName'), parameters('_artifactsLocationSasToken'))]",
+                  "contentVersion": "1.0.0.0"
+              },
+            "parameters": {
+              "virtualNetworkName": { "value": "[variables('virtualNetworkName')]" },
+              "addressPrefix": { "value": "[variables('addressPrefix')]" },
+              "subnetName": { "value": "[variables('subnetName')]" },
+              "subnetPrefix": { "value": "[variables('subnetPrefix')]" }
+            }
+          }
+      },
+    {
+        "name": "WindowsVMTemplate",
+        "type": "Microsoft.Resources/deployments",
+        "apiVersion": "2015-01-01",
+      "dependsOn": [
+        "Microsoft.Resources/deployments/NetworkInterfaceTemplate",
+        "Microsoft.Resources/deployments/StorageAccountTemplate"
+      ],
+        "properties": {
+            "mode": "Incremental",
+            "templateLink": {
+                "uri": "[concat(parameters('_artifactsLocation'), '/', parameters('WindowsVMTemplateTemplateFolder'), '/', parameters('WindowsVMTemplateTemplateFileName'), parameters('_artifactsLocationSasToken'))]",
+                "contentVersion": "1.0.0.0"
+            },
+          "parameters": {
+            "vmName": { "value": "[variables('vmName')]" },
+            "vhdStorageName": { "value": "[variables('vhdStorageName')]" },
+            "nicName": { "value": "[variables('nicName')]" },
+            "vmSize": { "value": "[variables('vmSize')]" },
+            "adminUsername": { "value": "[parameters('adminUsername')]" },
+            "adminPassword": { "value": "[parameters('adminPassword')]" },
+            "imagePublisher": { "value": "[variables('imagePublisher')]" },
+            "imageOffer": { "value": "[variables('imageOffer')]" },
+            "windowsOSVersion": { "value": "[parameters('windowsOSVersion')]" },
+            "vhdStorageContainerName": { "value": "[variables('vhdStorageContainerName')]" },
+            "OSDiskName": { "value": "[variables('OSDiskName')]" },
+            "diagnosticsStorageAccountName": { "value": "[variables('diagnosticsStorageAccountName')]" },
+            "wadcfgxstart": { "value": "[variables('wadcfgxstart')]" },
+            "wadmetricsresourceid": { "value": "[variables('wadmetricsresourceid')]" },
+            "wadcfgxend": { "value": "[variables('wadcfgxend')]" },
+            "accountid": { "value": "[variables('accountid')]" }
+          }
+        }
+    }
+
+
+  ]
+}
