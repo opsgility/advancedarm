@@ -72,5 +72,10 @@
       }
     }
   ],
-  "outputs": { }
+  "outputs": {
+    "vnetName": {
+      "type": "string",
+      "value": "[variables('vnetName')]"
+    }
+  }
 }

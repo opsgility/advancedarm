@@ -1,0 +1,112 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "baseName": {
+      "type": "string",
+      "metadata": {
+        "description": "Base name (prefix)"
+      }
+    },
+    "vnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "192.168.0.0/16",
+      "metadata": {
+        "description": "VNet Address prefix"
+      }
+    },
+    "subnetNamePrefixes": {
+      "type": "array",
+      "defaultValue": [ "web", "services", "data" ],
+      "metadata": {
+        "description": "Subnet name prefixes"
+      }
+    },
+    "subnetPrefixes": {
+      "type": "array",
+      "defaultValue": [ "192.168.1.0/24", "192.168.2.0/24", "192.168.3.0/24" ],
+      "metadata": {
+        "description": "Subnet prefixes"
+      }
+    },
+    "gatewaySubnetPrefix": {
+      "type": "string",
+      "defaultValue": "192.168.255.240/27",
+      "metadata": {
+        "description": "GatewaySubnet Prefix"
+      }
+    },
+    "vpnType": {
+      "type": "string",
+      "metadata": {
+        "description": "Route based (Dynamic Gateway) or Policy based (Static Gateway)"
+      },
+      "defaultValue": "RouteBased",
+      "allowedValues": [
+        "RouteBased",
+        "PolicyBased"
+      ]
+    },
+    "VNetTemplateFolder": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "template location. This path is relative to the _artifactsLocation parameter"
+      }
+    },
+    "VNetTemplateFileName": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "Name of the nested template file"
+      }
+    }
+  },
+  "variables": {
+    "nestedTemplateFolder": "https://raw.githubusercontent.com/opsgility/advancedarm/master/AdvARM/BuildingBlocks/Templates/",
+    "vnetTemplate": "bb-vnet-3subnets.json",
+    "vpngwTemplate": "bb-vpn-gateway.json"
+  },
+  "resources": [
+    {
+      "name": "VNet",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "dependsOn": [],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('VNetTemplateFolder'), parameters('VNetTemplateFileName'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "baseName": { "value": "[parameters('baseName')]" },
+          "vnetAddressPrefix": { "value": "[parameters('vnetAddressPrefix')]" },
+          "subnetNamePrefixes": { "value": "[parameters('subnetNamePrefixes')]" },
+          "subnetPrefixes": { "value": "[parameters('subnetPrefixes')]" }
+        }
+      }
+    },
+    {
+      "name": "VPNGateway",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "dependsOn": [ "Microsoft.Resources/deployments/VNet" ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('VNetTemplateFolder'), parameters('vpngwTemplate'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "baseName": { "value": "[parameters('baseName')]" },
+          "vnetName": { "value": "[reference('VNet').outputs.vnetName.value]" },
+          "gatewaySubnetPrefix": { "value": "[parameters('gatewaySubnetPrefix')]" },
+          "vpnType": { "value": "[parameters('vpnType')]" }
+        }
+      }
+    }
+  ],
+  "outputs": {
+  }
+}
