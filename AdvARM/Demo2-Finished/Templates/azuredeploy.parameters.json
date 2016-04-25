@@ -4,12 +4,6 @@
     "parameters": {
         "baseName": {
             "value": "demo2"
-        },
-        "VNetTemplateFolder": {
-            "value": "https://raw.githubusercontent.com/opsgility/advancedarm/master/AdvARM/BuildingBlocks/Templates/"
-        },
-        "VNetTemplateFileName": {
-            "value": "bb-vnet-3subnets.json"
         }
     }
 }
