@@ -2,5 +2,14 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "baseName": {
+            "value": "demo2"
+        },
+        "VNetTemplateFolder": {
+            "value": "https://raw.githubusercontent.com/opsgility/advancedarm/master/AdvARM/BuildingBlocks/Templates/"
+        },
+        "VNetTemplateFileName": {
+            "value": "bb-vnet-3subnets.json"
+        }
     }
 }

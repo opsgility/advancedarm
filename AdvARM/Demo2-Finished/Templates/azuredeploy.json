@@ -46,20 +46,6 @@
         "RouteBased",
         "PolicyBased"
       ]
-    },
-    "VNetTemplateFolder": {
-      "type": "string",
-      "minLength": 1,
-      "metadata": {
-        "description": "template location. This path is relative to the _artifactsLocation parameter"
-      }
-    },
-    "VNetTemplateFileName": {
-      "type": "string",
-      "minLength": 1,
-      "metadata": {
-        "description": "Name of the nested template file"
-      }
     }
   },
   "variables": {
@@ -76,7 +62,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[concat(parameters('VNetTemplateFolder'), parameters('VNetTemplateFileName'))]",
+          "uri": "[concat(variables('nestedTemplateFolder'), variables('vnetTemplate'))]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
@@ -95,7 +81,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[concat(parameters('VNetTemplateFolder'), parameters('vpngwTemplate'))]",
+          "uri": "[concat(variables('nestedTemplateFolder'), variables('vpngwTemplate'))]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
