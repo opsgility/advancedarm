@@ -43,6 +43,15 @@
   "resources": [
     {
       "apiVersion": "2016-03-30",
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "name": "[concat(parameters('vnetName'), '/GatewaySubnet')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "addressPrefix": "[parameters('gatewaySubnetPrefix')]"
+      }
+    },
+    {
+      "apiVersion": "2016-03-30",
       "type": "Microsoft.Network/publicIPAddresses",
       "name": "[variables('gwPIPName')]",
       "location": "[variables('location')]",
@@ -59,7 +68,8 @@
       "name": "[variables('gatewayName')]",
       "location": "[variables('location')]",
       "dependsOn": [
-        "[concat('Microsoft.Network/publicIPAddresses/', variables('gwPIPName'))]"
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('gwPIPName'))]",
+        "[concat('Microsoft.Network/virtualNetworks/',parameters('vnetName'),'/subnets/GatewaySubnet')]"
       ],
       "tags": {
         "displayName": "VPN Gateway"
