@@ -37,7 +37,7 @@
     "location": "[resourceGroup().location]",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
     "gwPIPName": "[concat(parameters('baseName'),'-gw-pip')]",
-    "gatewayName": "[concat(parameters('baseName'),'-',parameters('vnetName'),'-vpngw')]",
+    "gatewayName": "[concat(parameters('baseName'),'-vpngw')]",
     "gatewaySubnetRef": "[concat(variables('vnetID'),'/subnets/GatewaySubnet')]"
   },
   "resources": [
