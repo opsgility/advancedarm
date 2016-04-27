@@ -36,9 +36,9 @@
   "variables": {
     "location": "[resourceGroup().location]",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
-    "gwPIPName": "[concat(parameters('baseName'),'-',parameters('vnetName'),'-pip')]",
+    "gwPIPName": "[concat(parameters('baseName'),'-gw-pip')]",
     "gatewayName": "[concat(parameters('baseName'),'-',parameters('vnetName'),'-vpngw')]",
-    "gatewaySubnetRef": "[concat(variables('vnetID'),'/subnets/','GatewaySubnet')]"
+    "gatewaySubnetRef": "[concat(variables('vnetID'),'/subnets/GatewaySubnet')]"
   },
   "resources": [
     {
@@ -51,9 +51,6 @@
       },
       "properties": {
         "publicIPAllocationMethod": "Dynamic"
-      },
-      "tags": {
-        "displayName": "PIP - Gateway"
       }
     },
     {

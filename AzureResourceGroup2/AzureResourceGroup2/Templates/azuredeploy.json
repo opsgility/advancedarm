@@ -1,0 +1,49 @@
+﻿{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+  "parameters": {
+
+  },
+    "variables": {
+        "BlahPrefix": "10.0.0.0/16",
+        "BlahSubnet1Name": "Subnet-1",
+        "BlahSubnet1Prefix": "10.0.0.0/24",
+        "BlahSubnet2Name": "Subnet-2",
+        "BlahSubnet2Prefix": "10.0.1.0/24"
+    },
+    "resources": [
+        {
+            "name": "Blah",
+            "type": "Microsoft.Network/virtualNetworks",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2015-06-15",
+            "dependsOn": [ ],
+            "tags": {
+                "displayName": "Blah"
+            },
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[variables('BlahPrefix')]"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[variables('BlahSubnet1Name')]",
+                        "properties": {
+                            "addressPrefix": "[variables('BlahSubnet1Prefix')]"
+                        }
+                    },
+                    {
+                        "name": "[variables('BlahSubnet2Name')]",
+                        "properties": {
+                            "addressPrefix": "[variables('BlahSubnet2Prefix')]"
+                        }
+                    }
+                ]
+            }
+        }
+    ],
+    "outputs": {
+    }
+}

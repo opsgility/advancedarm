@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>ad0dcdaa-e2db-4e06-a743-f783b6decda3</ProjectGuid>
+    <ProjectGuid>d5769dd3-91db-41b3-8cc7-3c3205966a2d</ProjectGuid>
   </PropertyGroup>
   <PropertyGroup>
     <TargetFrameworkIdentifier>Deployment</TargetFrameworkIdentifier>
@@ -26,6 +26,7 @@
   <!-- vertag<:>end -->
   <ItemGroup>
     <Folder Include="Scripts\" />
+    <Folder Include="Templates\" />
     <Folder Include="Tools\" />
   </ItemGroup>
   <ItemGroup>
@@ -33,10 +34,8 @@
       <Visible>False</Visible>
     </None>
     <Content Include="Scripts\Deploy-AzureResourceGroup.ps1" />
-    <Content Include="Templates\bb-vnet-3subnets.json" />
-    <None Include="Templates\bb-vnet.parameters.json" />
-    <None Include="Templates\bb-vpn-connection.json" />
-    <None Include="Templates\bb-vpn-gateway.json" />
+    <Content Include="Templates\azuredeploy.json" />
+    <Content Include="Templates\azuredeploy.parameters.json" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Tools\AzCopy.exe" />
