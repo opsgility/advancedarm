@@ -46,19 +46,24 @@
         "RouteBased",
         "PolicyBased"
       ]
-    }
+    },
+    "adminUsername": { "type": "string" },
+    "adminPassword": { "type": "securestring" },
+    "numVMs": {"type": "int"}
   },
   "variables": {
     "nestedTemplateFolder": "https://raw.githubusercontent.com/opsgility/advancedarm/master/AdvARM/BuildingBlocks/Templates/",
     "vnetTemplate": "bb-vnet-3subnets.json",
-    "vpngwTemplate": "bb-vpn-gateway.json"
+    "vpngwTemplate": "bb-vpn-gateway.json",
+    "vmTemplate": "bb-vm-1nic-pip.json",
+    "stgAccountName": "[concat('stg', uniqueString(resourceGroup().id))]"
   },
   "resources": [
     {
       "name": "VNet",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2015-01-01",
-      "dependsOn": [],
+      "dependsOn": [ ],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
@@ -90,6 +95,45 @@
           "gatewaySubnetPrefix": { "value": "[parameters('gatewaySubnetPrefix')]" },
           "vpnType": { "value": "[parameters('vpnType')]" }
         }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "name": "[concat('vm',copyindex())]",
+      "copy": {
+        "name": "vmCount",
+        "count": "[parameters('numVMs')]"
+      },
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(variables('nestedTemplateFolder'), variables('vmTemplate'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "baseName": { "value": "[parameters('baseName')]" },
+          "vmNamePrefix": { "value": "[concat('vm',copyindex(1))]" },
+          "vmComputerName": { "value": "[concat('vm',copyindex(1))]" },
+          "snid": { "value": "[reference('VNet').outputs.subnet1id.value]" },
+          "stgAccountName": { "value": "[variables('stgAccountName')]" },
+          "osType": { "value": "Windows" },
+          "adminUsername": { "value": "[parameters('adminUsername')]" },
+          "adminPassword": { "value": "[parameters('adminPassword')]" }
+        }
+      }
+    },
+    {
+      "name": "[variables('stgAccountName')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2015-06-15",
+      "dependsOn": [ ],
+      "tags": {
+        "displayName": "stgAccount"
+      },
+      "properties": {
+        "accountType": "Premium_LRS"
       }
     }
   ],

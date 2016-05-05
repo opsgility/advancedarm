@@ -32,7 +32,8 @@
   },
   "variables": {
     "location": "[resourceGroup().location]",
-    "vnetName": "[concat(parameters('baseName'),'-vnet')]"
+    "vnetName": "[concat(parameters('baseName'),'-vnet')]",
+    "vnetId": "[resourceId('Microsoft.Network/virtualNetworks',variables('vnetName'))]"
   },
   "resources": [
     {
@@ -76,6 +77,10 @@
     "vnetName": {
       "type": "string",
       "value": "[variables('vnetName')]"
+    },
+    "subnet1id": {
+      "type": "string",
+      "value": "[concat(variables('vnetId'),'/subnets/',parameters('baseName'),'-',parameters('subnetNamePrefixes')[0],'-sn')]"
     }
   }
 }
