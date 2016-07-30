@@ -1,0 +1,65 @@
+﻿{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "size": {
+      "type": "string",
+      "allowedValues": [ "S", "M", "L", "XL", "XXL" ]
+    },
+    "image": {
+      "type": "string",
+      "allowedValues": [ "Windows 2012 R2", "SQL 2012", "Ubuntu 14.04" ]
+    },
+    "vmName": { "type": "string" },
+    "storageAccountName": {"type": "string"}
+  },
+  "variables": {
+    "hardwareProfile": {
+      "S": {
+        "vmSize": "Standard_DS1_v2"
+      },
+      "M": {
+        "vmSize": "Standard_DS2_v2"
+      },
+      "L": {
+        "vmSize": "Standard_DS3_v2"
+      },
+      "XL": {
+        "vmSize": "Standard_DS4_v2"
+      },
+      "XXL": {
+        "vmSize": "Standard_DS5_v2"
+      }
+    },
+    "imageReference": {
+      "Windows 2012 R2": {
+        "publisher": "MicrosoftWindowsServer",
+        "offer": "WindowsServer",
+        "sku": "2012-R2-Datacenter",
+        "version": "latest"
+      },
+      "SQL 2012": {
+        "publisher": "MicrosoftSQLServer",
+        "offer": "SQL2012SP3-WS2012R2",
+        "sku": "Enterprise",
+        "version": "latest"
+      },
+      "Ubuntu 14.04": {
+        "publisher": "Canonical",
+        "offer": "UbuntuServer",
+        "sku": "14.04.2-LTS",
+        "version": "latest"
+      }
+    }
+  },
+  "outputs": {
+    "hardwareProfile": {
+      "type": "object",
+      "value": "[variables('hardwareProfile')[parameters('size')]]"
+    },
+    "imageReference": {
+      "type": "object",
+      "value": "[variables('imageReference')[parameters('image')]]"
+    }
+  }
+}

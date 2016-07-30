@@ -1,0 +1,179 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "baseName": {
+      "type": "string",
+      "defaultValue": "mvnet",
+      "metadata": {
+        "description": "Base name"
+      }
+    },
+    "vmName": {
+      "type": "string",
+      "defaultValue": "vm1",
+      "metadata": {
+        "description": "VM name"
+      }
+    },
+    "vnetResourceGroup": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource group for existing virtual network"
+      }
+    },
+    "vnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name for existing virtual network"
+      }
+    },
+    "vnetSubnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name existing subnet"
+      }
+    },
+    "adminUsername": {
+      "type": "string",
+      "metadata": { "description": "Username for local admin account." }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": { "description": "Password for local admin account." }
+    },
+    "size": {
+      "type": "string",
+      "allowedValues": [ "S", "M", "L", "XL", "XXL" ]
+    },
+    "image": {
+      "type": "string",
+      "allowedValues": [ "Windows 2012 R2", "SQL 2012", "Ubuntu 14.04" ]
+    }
+  },
+  "variables": {
+    "location": "[resourceGroup().location]",
+    "hardwareProfile": {
+      "S": {
+        "vmSize": "Standard_DS1_v2"
+      },
+      "M": {
+        "vmSize": "Standard_DS2_v2"
+      },
+      "L": {
+        "vmSize": "Standard_DS3_v2"
+      },
+      "XL": {
+        "vmSize": "Standard_DS4_v2"
+      },
+      "XXL": {
+        "vmSize": "Standard_DS5_v2"
+      }
+    },
+    "imageReference": {
+      "Windows 2012 R2": {
+        "publisher": "MicrosoftWindowsServer",
+        "offer": "WindowsServer",
+        "sku": "2012-R2-Datacenter",
+        "version": "latest"
+      },
+      "SQL 2012": {
+        "publisher": "MicrosoftSQLServer",
+        "offer": "SQL2012SP3-WS2012R2",
+        "sku": "Enterprise",
+        "version": "latest"
+      },
+      "Ubuntu 14.04": {
+        "publisher": "Canonical",
+        "offer": "UbuntuServer",
+        "sku": "14.04.2-LTS",
+        "version": "latest"
+      }
+    },
+    "subnetId": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks/subnets',parameters('vnetName'),parameters('vnetSubnetName'))]",
+    "vmName": "[concat(parameters('baseName'),'-',parameters('vmName'))]",
+    "pipName": "[concat(variables('vmName'),'-pip')]",
+    "nicName": "[concat(variables('vmName'),'-nic')]",
+    "storageAccountName": "[concat(split(variables('vmName'),'-'),'stg')]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2016-03-30",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('pipName')]",
+      "location": "[variables('location')]",
+      "properties": { "publicIPAllocationMethod": "Dynamic" },
+      "tags": { "displayName": "VM PIP" }
+    },
+    {
+      "apiVersion": "2016-03-30",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('nicName')]",
+      "location": "[variables('location')]",
+      "tags": { "displayName": "VM NIC" },
+      "dependsOn": [
+        "[concat('Microsoft.Network/publicIPAddresses/',variables('pipName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": { "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('vmPIPName'))]" },
+              "subnet": { "id": "[variables('subnetId')]" }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[variables('storageAccountName')]",
+      "apiVersion": "2015-06-15",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "Storage Account"
+      },
+      "properties": {
+        "accountType": "Premium_LRS"
+      }
+    },
+    {
+      "apiVersion": "2015-06-15",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[parameters('vmName')]",
+      "location": "[variables('location')]",
+      "tags": { "displayName": "VM" },
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]",
+        "[concat('Microsoft.Network/storageAccounts/', variables('storageAccountName'))]"
+      ],
+      "properties": {
+        "hardwareProfile": "[variables('hardwareProfile')[parameters('size')]]",
+        "osProfile": {
+          "computerName": "[parameters('vmName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": "[variables('imageReference')[parameters('image')]]",
+          "osDisk": {
+            "name": "[parameters('vmName')]",
+            "vhd": { "uri": "[concat('http://', variables('storageAccountName'), '.blob.core.windows.net/vhds/', parameters('vmName'))]" },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            { "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]" }
+          ]
+        }
+      }
+    }
+
+  ],
+  "outputs": {
+  }
+}

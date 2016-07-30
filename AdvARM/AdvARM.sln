@@ -11,6 +11,8 @@ Project("{151D2E53-A2C4-4D7D-83FE-D05416EBD58E}") = "Demo2-Finished", "Demo2-Fin
 EndProject
 Project("{151D2E53-A2C4-4D7D-83FE-D05416EBD58E}") = "Demo2-Start", "Demo2-Start\Demo2-Start.deployproj", "{043CCDDD-F6EE-4CAE-8492-12499BCD802A}"
 EndProject
+Project("{151D2E53-A2C4-4D7D-83FE-D05416EBD58E}") = "Demo3-Start", "Demo3-Start\Demo3-Start.deployproj", "{F04052E8-C270-4654-90FB-50384E89CFBA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{043CCDDD-F6EE-4CAE-8492-12499BCD802A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{043CCDDD-F6EE-4CAE-8492-12499BCD802A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{043CCDDD-F6EE-4CAE-8492-12499BCD802A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F04052E8-C270-4654-90FB-50384E89CFBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F04052E8-C270-4654-90FB-50384E89CFBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F04052E8-C270-4654-90FB-50384E89CFBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F04052E8-C270-4654-90FB-50384E89CFBA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

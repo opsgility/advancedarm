@@ -15,15 +15,15 @@
         "description": "VNet Address prefix"
       }
     },
-    "subnetNamePrefix": {
-      "type": "array",
+    "subnetName": {
+      "type": "string",
       "defaultValue": "web",
       "metadata": {
         "description": "Subnet name prefix"
       }
     },
     "subnetPrefix": {
-      "type": "array",
+      "type": "string",
       "defaultValue": "10.0.1.0/24",
       "metadata": {
         "description": "Subnet prefix"
@@ -51,7 +51,7 @@
         },
         "subnets": [
           {
-            "name": "[concat(parameters('baseName'),'-',parameters('subnetNamePrefix'),'-sn')]",
+            "name": "[parameters('subnetName')]",
             "properties": {
               "addressPrefix": "[parameters('subnetPrefix')]"
             }

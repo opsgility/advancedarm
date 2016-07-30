@@ -6,37 +6,37 @@
             "value": "adminUser"
         },
         "dnsNameForPublicIP": {
-            "value": "telmodns01"
+            "value": "telmodns999"
         },
         "adminPassword": {
             "value": "adminP@ssw0rd"
         },
         "PublicIPTemplateTemplateFolder": {
-            "value": "Demo1/Templates"
+            "value": "Demo1-Finished/Templates"
         },
         "PublicIPTemplateTemplateFileName": {
             "value": "PublicIP.json"
         },
         "NetworkInterfaceTemplateTemplateFolder": {
-            "value": "Demo1/Templates"
+            "value": "Demo1-Finished/Templates"
         },
         "NetworkInterfaceTemplateTemplateFileName": {
             "value": "NetworkInterface.json"
         },
         "StorageAccountTemplateTemplateFolder": {
-            "value": "Demo1/Templates"
+            "value": "Demo1-Finished/Templates"
         },
         "StorageAccountTemplateTemplateFileName": {
             "value": "StorageAccount.json"
         },
         "VirtualNetworkTemplateTemplateFolder": {
-            "value": "Demo1/Templates"
+            "value": "Demo1-Finished/Templates"
         },
         "VirtualNetworkTemplateTemplateFileName": {
             "value": "VirtualNetwork.json"
         },
         "WindowsVMTemplateTemplateFolder": {
-            "value": "Demo1/Templates"
+            "value": "Demo1-Finished/Templates"
         },
         "WindowsVMTemplateTemplateFileName": {
             "value": "VirtualMachine.json"

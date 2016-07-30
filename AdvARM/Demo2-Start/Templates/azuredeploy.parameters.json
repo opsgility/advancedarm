@@ -3,7 +3,16 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "baseName": {
-            "value": "demo2"
+            "value": "demo2-2"
+        },
+        "adminUsername": {
+            "value": "adminUser"
+        },
+        "adminPassword": {
+            "value": "adminP@ssw0rd"
+        },
+        "numVMs": {
+            "value": 3
         }
     }
 }
