@@ -9,9 +9,7 @@
     "image": {
       "type": "string",
       "allowedValues": [ "Windows 2012 R2", "SQL 2012", "Ubuntu 14.04" ]
-    },
-    "vmName": { "type": "string" },
-    "storageAccountName": {"type": "string"}
+    }
   },
   "variables": {
     "hardwareProfile": {

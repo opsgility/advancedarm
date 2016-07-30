@@ -57,50 +57,32 @@
   },
   "variables": {
     "location": "[resourceGroup().location]",
-    "hardwareProfile": {
-      "S": {
-        "vmSize": "Standard_DS1_v2"
-      },
-      "M": {
-        "vmSize": "Standard_DS2_v2"
-      },
-      "L": {
-        "vmSize": "Standard_DS3_v2"
-      },
-      "XL": {
-        "vmSize": "Standard_DS4_v2"
-      },
-      "XXL": {
-        "vmSize": "Standard_DS5_v2"
-      }
-    },
-    "imageReference": {
-      "Windows 2012 R2": {
-        "publisher": "MicrosoftWindowsServer",
-        "offer": "WindowsServer",
-        "sku": "2012-R2-Datacenter",
-        "version": "latest"
-      },
-      "SQL 2012": {
-        "publisher": "MicrosoftSQLServer",
-        "offer": "SQL2012SP3-WS2012R2",
-        "sku": "Enterprise",
-        "version": "latest"
-      },
-      "Ubuntu 14.04": {
-        "publisher": "Canonical",
-        "offer": "UbuntuServer",
-        "sku": "14.04.2-LTS",
-        "version": "latest"
-      }
-    },
     "subnetId": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks/subnets',parameters('vnetName'),parameters('vnetSubnetName'))]",
     "vmName": "[concat(parameters('baseName'),'-',parameters('vmName'))]",
     "pipName": "[concat(variables('vmName'),'-pip')]",
     "nicName": "[concat(variables('vmName'),'-nic')]",
-    "storageAccountName": "[uniqueString(parameters('vmName'))]"
+    "storageAccountName": "[uniqueString(parameters('vmName'))]",
+    "nestedTemplateFolder": "https://raw.githubusercontent.com/opsgility/advancedarm/master/AdvARM/BuildingBlocks/Templates/",
+    "vmSettingsTemplate": "settings/vm-settings.json"
   },
   "resources": [
+    {
+      "apiVersion": "2015-01-01",
+      "type": "Microsoft.Resources/deployments",
+      "name": "vm-settings",
+      "dependsOn": [ ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(variables('nestedTemplateFolder'), variables('vmSettingsTemplate'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "size": { "value": "[parameters('size')]" },
+          "image": { "value": "[parameters('image')]" }
+        }
+      }
+    },
     {
       "apiVersion": "2016-03-30",
       "type": "Microsoft.Network/publicIPAddresses",
@@ -151,17 +133,18 @@
       "tags": { "displayName": "VM" },
       "dependsOn": [
         "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]",
-        "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
+        "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
+        "Microsoft.Resources/deployments/vm-settings"
       ],
       "properties": {
-        "hardwareProfile": "[variables('hardwareProfile')[parameters('size')]]",
+        "hardwareProfile": "[reference('vm-settings').outputs.hardwareProfile.value]",
         "osProfile": {
           "computerName": "[parameters('vmName')]",
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPassword')]"
         },
         "storageProfile": {
-          "imageReference": "[variables('imageReference')[parameters('image')]]",
+          "imageReference": "[reference('vm-settings').outputs.imageReference.value]",
           "osDisk": {
             "name": "[parameters('vmName')]",
             "vhd": { "uri": "[concat('http://', variables('storageAccountName'), '.blob.core.windows.net/vhds/', parameters('vmName'),'.vhd')]" },
@@ -176,7 +159,6 @@
         }
       }
     }
-
   ],
   "outputs": {
   }
