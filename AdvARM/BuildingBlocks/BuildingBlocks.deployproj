@@ -41,8 +41,10 @@
     <None Include="Templates\bb-vms-1nic.json" />
     <None Include="Templates\bb-vpn-connection.json" />
     <None Include="Templates\bb-vpn-gateway.json" />
+    <None Include="Templates\extensions\apache.sh" />
     <None Include="Templates\extensions\iis.ps1" />
     <None Include="Templates\extensions\iis.ps1.zip" />
+    <None Include="Templates\extensions\vm-extension-apache.json" />
     <None Include="Templates\extensions\vm-extension-iis.json" />
     <None Include="Templates\settings\vm-settings.json" />
   </ItemGroup>

@@ -4,33 +4,30 @@
   "parameters": {
     "vmName": {
       "type": "string",
-      "defaultValue": "vm1",
+      "defaultValue": "vm2",
       "metadata": {
         "description": "Virtual machine name"
       }
     }
   },
   "variables": {
-    "ModulesUrl": "https://raw.githubusercontent.com/opsgility/advancedarm/master/AdvARM/BuildingBlocks/Templates/extensions/iis.ps1.zip",
-    "configurationFunction": "iis.ps1\\IIS"
+    "fileUri": "https://raw.githubusercontent.com/opsgility/advancedarm/master/AdvARM/BuildingBlocks/Templates/extensions/apache.sh",
+    "command": "sh apache.sh"
   },
   "resources": [
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(parameters('vmName'),'/iis')]",
+      "name": "[concat(parameters('vmName'),'/apache')]",
       "apiVersion": "2015-06-15",
       "location": "[resourceGroup().location]",
       "properties": {
-        "publisher": "Microsoft.Powershell",
-        "type": "DSC",
-        "typeHandlerVersion": "2.19",
+        "publisher": "Microsoft.OSTCExtensions",
+        "type": "CustomScriptForLinux",
+        "typeHandlerVersion": "1.5",
         "autoUpgradeMinorVersion": true,
         "settings": {
-          "ModulesUrl": "[variables('modulesUrl')]",
-          "ConfigurationFunction": "[variables('configurationFunction')]",
-          "Properties": {
-            "MachineName": "[parameters('vmName')]"
-          }
+          "fileUris": ["[variables('fileUri')]"],
+          "CommandToExecute": "[variables('command')]"
         },
         "protectedSettings": null
       }
