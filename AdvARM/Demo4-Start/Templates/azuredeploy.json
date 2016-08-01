@@ -1,0 +1,165 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "baseName": {
+      "type": "string",
+      "defaultValue": "mvnet",
+      "metadata": {
+        "description": "Base name"
+      }
+    },
+    "vmName": {
+      "type": "string",
+      "defaultValue": "vm1",
+      "metadata": {
+        "description": "VM name"
+      }
+    },
+    "vnetResourceGroup": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource group for existing virtual network"
+      }
+    },
+    "vnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name for existing virtual network"
+      }
+    },
+    "vnetSubnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name existing subnet"
+      }
+    },
+    "adminUsername": {
+      "type": "string",
+      "metadata": { "description": "Username for local admin account." }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": { "description": "Password for local admin account." }
+    },
+    "size": {
+      "type": "string",
+      "allowedValues": [ "S", "M", "L", "XL", "XXL" ]
+    },
+    "image": {
+      "type": "string",
+      "allowedValues": [
+        "Windows 2012 R2",
+        "SQL 2012",
+        "Ubuntu 14.04"
+      ]
+    }
+  },
+  "variables": {
+    "location": "[resourceGroup().location]",
+    "subnetId": "[resourceId(parameters('vnetResourceGroup'),'Microsoft.Network/virtualNetworks/subnets',parameters('vnetName'),parameters('vnetSubnetName'))]",
+    "vmName": "[concat(parameters('baseName'),'-',parameters('vmName'))]",
+    "pipName": "[concat(variables('vmName'),'-pip')]",
+    "nicName": "[concat(variables('vmName'),'-nic')]",
+    "storageAccountName": "[uniqueString(parameters('vmName'))]",
+    "nestedTemplateFolder": "https://raw.githubusercontent.com/opsgility/advancedarm/master/AdvARM/BuildingBlocks/Templates/",
+    "vmSettingsTemplate": "settings/vm-settings.json"
+  },
+  "resources": [
+    {
+      "apiVersion": "2015-01-01",
+      "type": "Microsoft.Resources/deployments",
+      "name": "vm-settings",
+      "dependsOn": [ ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(variables('nestedTemplateFolder'), variables('vmSettingsTemplate'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "size": { "value": "[parameters('size')]" },
+          "image": { "value": "[parameters('image')]" }
+        }
+      }
+    },
+    {
+      "apiVersion": "2016-03-30",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('pipName')]",
+      "location": "[variables('location')]",
+      "properties": { "publicIPAllocationMethod": "Dynamic" },
+      "tags": { "displayName": "VM PIP" }
+    },
+    {
+      "apiVersion": "2016-03-30",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('nicName')]",
+      "location": "[variables('location')]",
+      "tags": { "displayName": "VM NIC" },
+      "dependsOn": [
+        "[concat('Microsoft.Network/publicIPAddresses/',variables('pipName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": { "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('pipName'))]" },
+              "subnet": { "id": "[variables('subnetId')]" }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[variables('storageAccountName')]",
+      "apiVersion": "2015-06-15",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "Storage Account"
+      },
+      "properties": {
+        "accountType": "Premium_LRS"
+      }
+    },
+    {
+      "apiVersion": "2015-06-15",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[parameters('vmName')]",
+      "location": "[variables('location')]",
+      "tags": { "displayName": "VM" },
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]",
+        "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
+        "Microsoft.Resources/deployments/vm-settings"
+      ],
+      "properties": {
+        "hardwareProfile": "[reference('vm-settings').outputs.hardwareProfile.value]",
+        "osProfile": {
+          "computerName": "[parameters('vmName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": "[reference('vm-settings').outputs.imageReference.value]",
+          "osDisk": {
+            "name": "[parameters('vmName')]",
+            "vhd": { "uri": "[concat('http://', variables('storageAccountName'), '.blob.core.windows.net/vhds/', parameters('vmName'),'.vhd')]" },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            { "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]" }
+          ]
+        }
+      }
+    }
+  ],
+  "outputs": {
+  }
+}

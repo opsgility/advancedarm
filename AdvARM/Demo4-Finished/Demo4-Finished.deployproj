@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>ad0dcdaa-e2db-4e06-a743-f783b6decda3</ProjectGuid>
+    <ProjectGuid>a94b497d-62c6-4c4b-b0a0-d50bca0e307c</ProjectGuid>
   </PropertyGroup>
   <PropertyGroup>
     <TargetFrameworkIdentifier>Deployment</TargetFrameworkIdentifier>
@@ -33,18 +33,9 @@
       <Visible>False</Visible>
     </None>
     <Content Include="Scripts\Deploy-AzureResourceGroup.ps1" />
-    <Content Include="Templates\bb-vnet-1subnet.json" />
-    <Content Include="Templates\bb-vnet-3subnets.json" />
-    <None Include="Templates\azuredeploy.parameters.json" />
-    <None Include="Templates\bb-vm-1nic-pip.json" />
-    <None Include="Templates\bb-vm-1nic.json" />
-    <None Include="Templates\bb-vms-1nic.json" />
-    <None Include="Templates\bb-vpn-connection.json" />
-    <None Include="Templates\bb-vpn-gateway.json" />
-    <None Include="Templates\extensions\iis.ps1" />
-    <None Include="Templates\extensions\iis.ps1.zip" />
-    <None Include="Templates\extensions\vm-extension-iis.json" />
-    <None Include="Templates\settings\vm-settings.json" />
+    <Content Include="Templates\mainTemplate.json" />
+    <Content Include="Templates\mainTemplateparameters.json" />
+    <None Include="Templates\createUiDefinition.json" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Tools\AzCopy.exe" />

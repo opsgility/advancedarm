@@ -1,0 +1,135 @@
+﻿{
+  "handler": "Microsoft.Compute.MultiVm",
+  "version": "0.0.1-preview",
+  "parameters": {
+    "basics": [
+      {
+        "name": "baseName",
+        "type": "Microsoft.Common.TextBox",
+        "label": "Base name",
+        "toolTip": "Prefix to be appended to all resources created for this VM.",
+        "defaultValue": "app-1"
+      },
+      {
+        "name": "vmName",
+        "type": "Microsoft.Common.TextBox",
+        "label": "VM name",
+        "toolTip": "Name of the vm.",
+        "defaultValue": "vm1"
+      },
+      {
+        "name": "adminUsername",
+        "type": "Microsoft.Compute.UserNameTextBox",
+        "label": "Username",
+        "toolTip": "Admin username for the virtual machines.",
+        "osPlatform": "Windows"
+      },
+      {
+        "name": "adminPassword",
+        "type": "Microsoft.Compute.CredentialsCombo",
+        "label": {
+          "password": "Password",
+          "confirmPassword": "Confirm password"
+        },
+        "toolTip": {
+          "password": "Admin password for the virtual machines."
+        },
+        "osPlatform": "Windows"
+      }
+    ],
+    "steps": [
+      {
+        "name": "infrastructureConfig",
+        "label": "Infrastructure settings",
+        "subLabel": {
+          "preValidation": "Configure the infrastructure settings",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "Infrastructure settings",
+        "elements": [
+          {
+            "name": "virtualNetwork",
+            "type": "Microsoft.Network.VirtualNetworkCombo",
+            "label": {
+              "virtualNetwork": "Virtual network.",
+              "subnets": "Subnets in the selected virtual network."
+            },
+            "toolTip": {
+              "virtualNetwork": "Virtual network",
+              "subnets": "Subnets"
+            },
+            "options": {
+              "hideExisting": false
+            }
+          },
+          {
+            "name": "size",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Virtual machine size",
+            "defaultValue": "L",
+            "toolTip": "The size of the virtual machine.",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "S",
+                  "value": "S"
+                },
+                {
+                  "label": "M",
+                  "value": "M"
+                },
+                {
+                  "label": "L",
+                  "value": "L"
+                },
+                {
+                  "label": "XL",
+                  "value": "XL"
+                },
+                {
+                  "label": "XXL",
+                  "value": "XXL"
+                }
+              ]
+            }
+          },
+          {
+            "name": "image",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Virtual machine image",
+            "defaultValue": "Windows 2012 R2",
+            "toolTip": "The iamge for the virtual machine.",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Windows 2012 R2",
+                  "value": "Windows 2012 R2"
+                },
+                {
+                  "label": "SQL 2012",
+                  "value": "SQL 2012"
+                },
+                {
+                  "label": "Ubuntu 14.04",
+                  "value": "Ubuntu 14.04"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "outputs": {
+      "location": "[location()]",
+      "baseName": "[basics('baseName')]",
+      "vmName": "[basics('vmName')]",
+      "adminUsername": "[basics('adminUsername')]",
+      "adminPassword": "[basics('adminPassword')]",
+      "vnetResourceGroup": "[steps('infrastructureConfig').Network.virtualNetwork.resourceGroup]",
+      "vnetName": "[steps('infrastructureConfig').Network.virtualNetwork.name]",
+      "vnetSubnetName": "[steps('infrastructureConfig').Network.virtualNetwork.subnets.subnet1.name]",
+      "size": "[steps('infrastructureConfig').storageAccount.resourceGroup]",
+      "image": "[steps('infrastructureConfig').domainName]"
+    }
+  }
+}

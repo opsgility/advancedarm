@@ -1,0 +1,33 @@
+﻿{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "baseName": {
+            "value": "app1"
+        },
+        "vmName": {
+            "value": "vm2"
+        },
+        "vnetResourceGroup": {
+            "value": "app1-rg"
+        },
+        "vnetName": {
+            "value": "app1-vnet"
+        },
+        "vnetSubnetName": {
+            "value": "web"
+        },
+        "adminUsername": {
+            "value": "adminUser"
+        },
+        "adminPassword": {
+            "value": "adminP@ssw0rd"
+        },
+        "size": {
+            "value": "L"
+        },
+        "image": {
+            "value": "Windows 2012 R2"
+        }
+    }
+}
